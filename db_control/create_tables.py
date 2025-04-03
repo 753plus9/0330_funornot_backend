@@ -1,9 +1,17 @@
-from mymodels import Base  # User, Comment
-from connect import engine
-
-import platform
-print(platform.uname())
+# db_control/create_tables.py
 
 
-print("Creating tables >>> ")
-Base.metadata.create_all(bind=engine)
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
+from db_control.connect_MySQL import engine
+from db_control import mymodels
+
+def init_db():
+    print("🔧 テーブル作成中...")
+    mymodels.Base.metadata.create_all(bind=engine)
+    print("✅ テーブル作成完了！")
+
+if __name__ == "__main__":
+    init_db()

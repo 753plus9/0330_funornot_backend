@@ -1,7 +1,10 @@
-from sqlalchemy import create_engine
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+load_dotenv()
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, declarative_base
 
 # 環境変数の読み込み
 base_path = Path(__file__).parents[1]  # backendディレクトリへのパス
@@ -10,7 +13,7 @@ base_path = Path(__file__).parents[1]  # backendディレクトリへのパス
 
 # データベース接続情報
 DB_USER = os.getenv('DB_USER')
-DB_PASSWORD = os.getenv('DB_PASSWORD')
+DB_PASSWORD = os.getenv('DB_PASSWORD',"")
 DB_HOST = os.getenv('DB_HOST')
 DB_PORT = os.getenv('DB_PORT','3306')
 DB_NAME = os.getenv('DB_NAME')
@@ -34,8 +37,11 @@ engine = create_engine(
     pool_recycle=3600
 )
 
-print("Current working directory:", os.getcwd())
-print("Certificate file exists:", os.path.exists('DigiCertGlobalRootCA.crt.pem'))
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+# print("Current working directory:", os.getcwd())
+# print("Certificate file exists:", os.path.exists('DigiCertGlobalRootCA.crt.pem'))
 
 # from sqlalchemy import create_engine
 # import os
