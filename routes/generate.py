@@ -24,13 +24,23 @@ async def generate_image(image: UploadFile = File(...)):
 
     try:
         output = replicate.run(
-            "stability-ai/sdxl:7762fd07cf82c948538e41f63f77d685e02b063e37e496e96eefd46c929f9bdc",
+            "stability-ai/stable-diffusion-3.5-large",
             input={
                 "image": open(temp_path, "rb"),
-                "prompt": "Without changing the person in the original photo, change the hairstyle and clothes to make them cool and stylish, safe for work",
-                "strength": 0.7,
+                "prompt": "A highly realistic, photorealistic image of the Japanese man as in the original photo. Keep the face, hair, and body shape exactly the same and maintain natural skin texture. Focus on changing only the clothing to a stylish, modern outfit with high-quality fabric and a well-fitted design. Preserve a natural pose and lighting, ensuring the result looks like a genuine photograph of the same person.",
+                "strength": 0.85,
             }
         )
+ß
+    # try:
+    #     output = replicate.run(
+    #         "stability-ai/sdxl:7762fd07cf82c948538e41f63f77d685e02b063e37e496e96eefd46c929f9bdc",
+    #         input={
+    #             "image": open(temp_path, "rb"),
+    #             "prompt": "Without changing the person in the original photo, change the hairstyle and clothes to make them cool and stylish, safe for work",
+    #             "strength": 0.7,
+    #         }
+    #     )
     except ModelError as e:
         if "NSFW" in str(e):
             print("⚠️ NSFW判定されたので再実行")
