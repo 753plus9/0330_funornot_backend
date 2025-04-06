@@ -8,6 +8,7 @@ from fastapi import APIRouter, UploadFile, File
 from fastapi.responses import JSONResponse
 from replicate.exceptions import ModelError
 from routes.fashion_service import generate_fashion_description
+from utils.upload_to_blob import upload_image_to_blob  # ← 追加！
 import replicate
 
 router = APIRouter()
@@ -16,17 +17,22 @@ router = APIRouter()
 async def generate_image(image: UploadFile = File(...)):
     print("🔥 画像を受け取りました:", image.filename)
 
-    temp_filename = f"temp_{uuid.uuid4().hex}.png"
-    temp_path = f"./temp/{temp_filename}"
-    os.makedirs("temp", exist_ok=True)
-    with open(temp_path, "wb") as buffer:
-        shutil.copyfileobj(image.file, buffer)
+    # Azure Blob にアップロード
+    blob_url = await upload_image_to_blob(image)
+    print("📤 Blob URL:", blob_url)
+    
+    # temp_filename = f"temp_{uuid.uuid4().hex}.png"
+    # temp_path = f"./temp/{temp_filename}"
+    # os.makedirs("temp", exist_ok=True)
+    # with open(temp_path, "wb") as buffer:
+    #     shutil.copyfileobj(image.file, buffer)
 
     try:
         output = replicate.run(
             "stability-ai/stable-diffusion-3.5-large",
             input={
-                "image": open(temp_path, "rb"),
+                "image": blob_url,  # ← open() ではなく URL
+                # "image": open(temp_path, "rb"),
                 "prompt": "A highly realistic, photorealistic image of the Japanese man as in the original photo. Keep the face, hair, and body shape exactly the same and maintain natural skin texture. Focus on changing only the clothing to a stylish, modern outfit with high-quality fabric and a well-fitted design. Preserve a natural pose and lighting, ensuring the result looks like a genuine photograph of the same person.",
                 "strength": 0.85,
             }
@@ -46,9 +52,11 @@ async def generate_image(image: UploadFile = File(...)):
             print("⚠️ NSFW判定されたので再実行")
             time.sleep(1)
             output = replicate.run(
-                "stability-ai/sdxl:7762fd07cf82c948538e41f63f77d685e02b063e37e496e96eefd46c929f9bdc",
+                "stability-ai/stable-diffusion-3.5-large",
+                # "stability-ai/sdxl:7762fd07cf82c948538e41f63f77d685e02b063e37e496e96eefd46c929f9bdc",
                 input={
-                    "image": open(temp_path, "rb"),
+                    "image": blob_url,  # ← open() ではなく URL
+                    # "image": open(temp_path, "rb"),
                     "prompt": "a cool fashionable middle-aged man, fully clothed, wearing stylish outfit, realistic portrait, safe for work",
                     "strength": 0.7,
                 }
