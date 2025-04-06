@@ -1,5 +1,38 @@
-.env
-*.pyc
+# Python
 __pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+venv/
+
+# Environment variables
+.env*
+!.env.example
+
+# macOS
+.DS_Store
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Next.js
+.next/
+out/
+
+# Logs
+*.log
+
+# Others
+.idea/
+.vscode/
+*.sqlite3
+*.zip
+
 *.db
 DigiCertGlobalRootCA.crt.pem
