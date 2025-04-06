@@ -34,8 +34,9 @@ def save_result(data: SaveRequest):
             created_at=datetime.now()
         )
         db.add(new_bedandy)
-        db.commit()
-        db.refresh(new_bedandy)  # bedandy_id を取得
+        db.flush()
+        # db.commit()
+        # db.refresh(new_bedandy)  # bedandy_id を取得
 
         # item テーブルに登録し、中間テーブル bd_item にも登録
         for f in data.fashion_items:
@@ -46,16 +47,19 @@ def save_result(data: SaveRequest):
                 description=f.description
             )
             db.add(item)
-            db.commit()
-            db.refresh(item)
+            db.flush()
+            # db.commit()
+            # db.refresh(item)
 
             bd_item = mymodels.BdItem(
                 bedandy_id=new_bedandy.bedandy_id,
                 item_id=item.item_id
             )
             db.add(bd_item)
-            db.commit()
+            
+        db.commit()
 
+        print(f"✅ 保存成功：bedandy_id={new_bedandy.bedandy_id}, items={len(data.fashion_items)}")
         return {"status": "success", "bedandy_id": new_bedandy.bedandy_id}
     except Exception as e:
         db.rollback()
