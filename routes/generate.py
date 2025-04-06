@@ -17,9 +17,12 @@ router = APIRouter()
 async def generate_image(image: UploadFile = File(...)):
     print("🔥 画像を受け取りました:", image.filename)
 
-    # Azure Blob にアップロード
-    blob_url = await upload_image_to_blob(image)
+     # Azure Blobにアップロードしつつ、image_bytes を取得
+    blob_url, image_bytes = await upload_image_to_blob(image)
     print("📤 Blob URL:", blob_url)
+    
+    # Replicateに画像（bytes）を渡す（BytesIOで包む）
+    image_io = io.BytesIO(image_bytes)   
     
     # temp_filename = f"temp_{uuid.uuid4().hex}.png"
     # temp_path = f"./temp/{temp_filename}"
@@ -51,6 +54,8 @@ async def generate_image(image: UploadFile = File(...)):
         if "NSFW" in str(e):
             print("⚠️ NSFW判定されたので再実行")
             time.sleep(1)
+            image_io.seek(0)  # ← 重要！読み直す準備
+
             output = replicate.run(
                 "stability-ai/stable-diffusion-3.5-large",
                 # "stability-ai/sdxl:7762fd07cf82c948538e41f63f77d685e02b063e37e496e96eefd46c929f9bdc",
@@ -71,5 +76,6 @@ async def generate_image(image: UploadFile = File(...)):
 
     return JSONResponse(content={
         "generated_image_url": generated_url,
+        "before_image_url": blob_url,  # ← blob の URL も返す
         "fashion_items": fashion_items,
     })
