@@ -45,7 +45,10 @@ async def generate_image(image: UploadFile = File(...)):
                 }
             )
             logging.info("🧠 Replicate 呼び出し成功（logging）")
-
+               
+        except Exception as e:
+            logging.error(f"💥 処理全体で予期せぬエラーが発生しました: {e}", exc_info=True)
+            return JSONResponse(content={"error": "Internal server error"}, status_code=500)
         # try:
         #     output = replicate.run(
         #         "stability-ai/sdxl:7762fd07cf82c948538e41f63f77d685e02b063e37e496e96eefd46c929f9bdc",
@@ -76,7 +79,6 @@ async def generate_image(image: UploadFile = File(...)):
         # return JSONResponse(content={"error": "Replicate API failed"}, status_code=500)
 
         generated_url = str(output[0]) if isinstance(output, list) else str(output)
-        
         fashion_items = generate_fashion_description(generated_url)
         logging.info("👕 ファッション情報の取得成功")
 
@@ -85,7 +87,8 @@ async def generate_image(image: UploadFile = File(...)):
             "before_image_url": blob_url,  # ← blob の URL も返す
             "fashion_items": fashion_items,
         })
-    
+        
     except Exception as e:
-        logging.error(f"💥 処理全体で予期せぬエラーが発生しました: {e}", exc_info=True)
+        logging.error(f"💥 全体でエラー発生: {e}", exc_info=True)
         return JSONResponse(content={"error": "Internal server error"}, status_code=500)
+        
