@@ -21,18 +21,18 @@ router = APIRouter()
 
 @router.post("/api/generate")
 async def generate_image(image: UploadFile = File(...)):
-    print("🔥 画像を受け取りました:", image.filename)
-    logging.info(f"🔥 画像を受け取りました: {image.filename}")
+    print("🔥 画像を受け取りました（print）:", image.filename)
+    logging.info(f"🔥 画像を受け取りました（logging）: {image.filename}")
 
     try:
 
         # Azure Blobにアップロードしつつ、image_bytes を取得
         blob_url, image_bytes = await upload_image_to_blob(image)
-        print("📤 Blob URL:", blob_url)
-        logging.info(f"📤 Blob URL: {blob_url}")
+        print("📤 Blob URL（print）:", blob_url)
+        logging.info(f"📤 Blob URL（logging）: {blob_url}")
 
     except Exception as e:
-        logging.error(f"💥 Blobアップロードでエラー: {e}")
+        logging.error(f"💥 Blobアップロードでエラー（logging）: {e}")
         return JSONResponse(content={"error": "Blob upload failed"}, status_code=500)
 
     # Replicateに画像（bytes）を渡す（BytesIOで包む）
@@ -54,7 +54,7 @@ async def generate_image(image: UploadFile = File(...)):
                 "strength": 0.85,
             }
         )
-        logging.info("🧠 Replicate 呼び出し成功")
+        logging.info("🧠 Replicate 呼び出し成功（logging）")
 
     # try:
     #     output = replicate.run(
@@ -94,7 +94,7 @@ async def generate_image(image: UploadFile = File(...)):
         fashion_items = generate_fashion_description(generated_url)
 
     except Exception as e:
-        logging.error(f"💥 ファッション情報生成でエラー: {e}")
+        logging.error(f"💥 ファッション情報生成でエラー（logging）: {e}")
         return JSONResponse(content={"error": "Fashion description failed"}, status_code=500)
 
     return JSONResponse(content={
