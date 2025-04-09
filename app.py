@@ -11,7 +11,7 @@ logging.basicConfig(
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes import generate,save
+from routes import generate,save,auth
 
 from dotenv import load_dotenv
 import os
@@ -50,3 +50,4 @@ app.add_middleware(
 # ルーター登録（ここで他のルートもまとめて登録できるようにする）
 app.include_router(generate.router)
 app.include_router(save.router)
+app.include_router(auth.router)
