@@ -2,8 +2,12 @@ from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 from db_control.connect_MySQL import SessionLocal
 from sqlalchemy.orm import Session
+from sqlalchemy import text
+
 import logging
 import hashlib
+# import uuid
+
 
 router = APIRouter()
 
@@ -21,10 +25,11 @@ def login(user: UserLogin, request: Request):
     try:
         hashed_password = hashlib.sha256(user.password.encode()).hexdigest()
         result = db.execute(
-            "SELECT * FROM user WHERE email=%s AND password=%s",
-            (user.email, hashed_password)
+            text("SELECT * FROM user WHERE email = :email AND password = :password"),
+            {"email": user.email, "password": hashed_password}
         )
-        user_data = result.fetchone()
+        user_data = result.mappings().fetchone()  # ←ここを変更！
+        
         if not user_data:
             raise HTTPException(status_code=401, detail="Invalid credentials")
         return {
@@ -40,15 +45,24 @@ def login(user: UserLogin, request: Request):
 
 @router.post("/api/register")
 def register(user: UserRegister):
+    print("📥 受け取ったリクエスト:", user.dict())
+
     db: Session = SessionLocal()
     try:
+
         hashed_password = hashlib.sha256(user.password.encode()).hexdigest()
         db.execute(
-            "INSERT INTO user (name, email, password, family_id) VALUES (%s, %s, %s, %s)",
-            (user.name, user.email, hashed_password, user.family_id)
+            text("INSERT INTO user (name, email, password, family_id) VALUES (:name, :email, :password, :family_id)"),
+            {"name": user.name, "email": user.email, "password": hashed_password, "family_id": user.family_id}
         )
         db.commit()
-        return {"message": "登録完了"}
+        return {"message": "登録完了", "family_id": user.family_id}
+
+    except IntegrityError:
+        db.rollback()
+        logging.error("登録エラー: メールアドレスが既に存在します")
+        raise HTTPException(status_code=400, detail="このメールアドレスはすでに登録されています")
+    
     except Exception as e:
         logging.error(f"登録エラー: {e}")
         db.rollback()
