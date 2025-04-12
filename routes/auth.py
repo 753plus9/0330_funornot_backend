@@ -22,12 +22,15 @@ class UserRegister(UserLogin):
 @router.post("/api/login")
 def login(user: UserLogin, request: Request):
     db: Session = SessionLocal()
+    print("📥 受け取ったログインリクエスト:", user.dict())
+
     try:
         hashed_password = hashlib.sha256(user.password.encode()).hexdigest()
         result = db.execute(
-            text("SELECT * FROM user WHERE email = :email AND password = :password"),
+            text("SELECT id, email, family_id FROM user WHERE email = :email AND password = :password"),
             {"email": user.email, "password": hashed_password}
         )
+
         user_data = result.mappings().fetchone()  # ←ここを変更！
         
         if not user_data:
@@ -45,7 +48,7 @@ def login(user: UserLogin, request: Request):
 
 @router.post("/api/register")
 def register(user: UserRegister):
-    print("📥 受け取ったリクエスト:", user.dict())
+    print("📥 受け取った登録リクエスト:", user.dict())
 
     db: Session = SessionLocal()
     try:
