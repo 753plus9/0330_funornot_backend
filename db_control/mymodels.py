@@ -9,15 +9,14 @@ class Bedandy(Base):
     __tablename__ = "bedandy"
 
     bedandy_id = Column(Integer, primary_key=True, autoincrement=True)
-    family_id = Column(String(50), nullable=False)
+    family_id = Column(String(50), ForeignKey("user.family_id"), nullable=False)
     before_photourl = Column(Text, nullable=True)
     after_photourl = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.now)
 
     items = relationship("BdItem", back_populates="bedandy")
     messages = relationship("Message", back_populates="bedandy")
-
-
+    user = relationship("User", back_populates="bedandies")  # ✅ 追加（1対多の戻り先）
 
 class Item(Base):
     __tablename__ = "item"
@@ -29,7 +28,6 @@ class Item(Base):
     description = Column(Text)
 
     beds = relationship("BdItem", back_populates="item")
-
 
 class BdItem(Base):
     __tablename__ = "bd_item"
@@ -44,18 +42,6 @@ class BdItem(Base):
 class User(Base):
     __tablename__ = "user"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)  # ✅ 追加された主キー
-    family_id = Column(String(50), unique=True, nullable=False)
-    email = Column(String(100), unique=True, nullable=False)
-    password = Column(String(100), nullable=False)
-    name = Column(String(100))
-    age = Column(Integer)
-    sex = Column(String(10))
-    pc_flg = Column(String(1))
-    
-class User(Base):
-    __tablename__ = "user"
-
     id = Column(Integer, primary_key=True, autoincrement=True)
     family_id = Column(String(50), unique=True, nullable=False)
     email = Column(String(100), unique=True, nullable=False)
@@ -65,9 +51,7 @@ class User(Base):
     sex = Column(String(10))
     pc_flg = Column(String(1))
 
-    # ✅ Bedandyとのリレーション（1対多）
-    bedandies = relationship("Bedandy", back_populates="user", primaryjoin="User.family_id==Bedandy.family_id")
-
+    bedandies = relationship("Bedandy", back_populates="user")  # ✅ User ⇄ Bedandy のリレーション
 
 class Message(Base):
     __tablename__ = "message"
@@ -76,6 +60,5 @@ class Message(Base):
     bedandy_id = Column(Integer, ForeignKey("bedandy.bedandy_id"), nullable=False)
     message_text = Column(Text)
     sent_at = Column(DateTime)
-    
-    # もしBedandyとのリレーションを貼るなら
-    bedandy = relationship("Bedandy", backref="messages")
+
+    bedandy = relationship("Bedandy", back_populates="messages")  # ✅ 統一のためbackrefではなくback_populatesを使用
