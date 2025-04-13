@@ -53,7 +53,7 @@ class User(Base):
     sex = Column(String(10))
     pc_flg = Column(String(1))
     
-    class User(Base):
+class User(Base):
     __tablename__ = "user"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -69,8 +69,8 @@ class User(Base):
     bedandies = relationship("Bedandy", back_populates="user", primaryjoin="User.family_id==Bedandy.family_id")
 
 
-    class Message(Base):
-        __tablename__ = "message"
+class Message(Base):
+    __tablename__ = "message"
 
     message_id = Column(Integer, primary_key=True, autoincrement=True)
     bedandy_id = Column(Integer, ForeignKey("bedandy.bedandy_id"), nullable=False)
