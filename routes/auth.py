@@ -23,6 +23,7 @@ class UserRegister(UserLogin):
 def login(user: UserLogin, request: Request):
     db: Session = SessionLocal()
     print("📥 受け取ったログインリクエスト:", user.dict())
+    logging.info(f"📥 受け取ったログインリクエスト（logging）: {user.dict()}")
 
     try:
         hashed_password = hashlib.sha256(user.password.encode()).hexdigest()
@@ -49,6 +50,7 @@ def login(user: UserLogin, request: Request):
 @router.post("/api/register")
 def register(user: UserRegister):
     print("📥 受け取った登録リクエスト:", user.dict())
+    logging.info(f"📥 受け取った登録リクエスト（logging）: {user.dict()}")
 
     db: Session = SessionLocal()
     try:
