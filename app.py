@@ -11,7 +11,7 @@ logging.basicConfig(
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes import generate,save,auth
+from routes import generate,save,auth,submit,check
 
 from dotenv import load_dotenv
 import os
@@ -51,3 +51,7 @@ app.add_middleware(
 app.include_router(generate.router)
 app.include_router(save.router)
 app.include_router(auth.router)
+app.include_router(submit.router)
+app.include_router(check.router)
+
+

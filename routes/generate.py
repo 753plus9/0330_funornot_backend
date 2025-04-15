@@ -40,8 +40,8 @@ async def generate_image(image: UploadFile = File(...)):
                 input={
                     "image": blob_url,  # ← open() ではなく URL
                     # "image": open(temp_path, "rb"),
-                    "prompt": "A highly realistic, photorealistic image of the Japanese man as in the original photo. Keep the face, hair, and body shape exactly the same and maintain natural skin texture. Focus on changing only the clothing to a stylish, modern outfit with high-quality fabric and a well-fitted design. Preserve a natural pose and lighting, ensuring the result looks like a genuine photograph of the same person.",
-                    "strength": 0.85,
+                    "prompt": "A highly realistic, photorealistic image of the Japanese man as in the original photo. Keep the face, hair, and body shape exactly the same and maintain natural skin texture.Focus on changing only the clothing.And change the clothes as following style.Tops: Long sleeve business casual Jacket wearing on the white T-Shirts.Bottoms: Totally same color long sleeve pants with Jacket.Shoes: Black leather shoes which can match the Tops and Bottoms style.However, if photo is not the case which doesn't see the whole body, please change the photo to whole body accordingly.Caution!!Don't change the age generation so that it can understand as same Japanese man before/after change and don't change the background image.",
+                    "strength": 0.9,
                 }
             )
             logging.info("🧠 Replicate 呼び出し成功（logging）")
